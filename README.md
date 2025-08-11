@@ -1,3 +1,5 @@
+# ** Continued from a group project (https://github.com/mJHad/Observer-Project) all updates and modifications were done by me.**
+
 # Test-Project
 # This project is using the design pattern observer to design a weather software
 # project_weather file has the code project with all related files to run the code
