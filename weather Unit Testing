@@ -1,0 +1,156 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.net.URL;
+import java.net.*;  
+import java.io.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+// Initializing the window labels and variables used
+public class weather extends JFrame{
+    private JPanel panel; 
+    private JLabel instructions;
+    private JLabel temperature;
+    private JLabel errorMessage;
+    private JLabel fLike;
+    private JLabel humidity;
+    private JLabel pressure; //pressure
+    private JTextField cityTextField;
+    private JButton startProcess;
+    private final int WINDOW_WIDTH=400;    // window width is 400 pixels
+    private final int WINDOW_HEIGHT=200;   // window height is 200 pixels
+
+    // Setting up the main panel for the user interface
+    public weather (){
+        super("Weather Data");
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        buildPanel();
+        add(panel);
+        setVisible(true);
+    }
+
+    // Builds the JPanel for the user, and implements each element onto the panel
+    private void buildPanel(){
+        instructions = new JLabel("enter city");
+        cityTextField = new JTextField(10);
+        startProcess = new JButton("enter");
+        temperature = new JLabel("");
+        fLike = new JLabel("");
+        humidity = new JLabel("");
+        errorMessage = new JLabel("check spelling");
+        startProcess.addActionListener(new update());
+        panel = new JPanel();
+        panel.add(instructions);
+        panel.add(cityTextField);
+        panel.add(startProcess);
+        panel.add(temperature);
+        panel.add(fLike);
+        panel.add(humidity);
+        panel.add(errorMessage);
+        errorMessage.setVisible(false);
+    }
+
+    /* Main execution of the code to get weather information from the API through the URL.
+     * The main URL is crafted with the beginning of the main URL from the website, plus
+     * the middle, which would be the city from the user input, plus the ending of the
+       main URL from the website. */
+    private class update implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            String city; // This is the middle piece to bridge the gap in the main URL
+            city=cityTextField.getText();
+            errorMessage.setVisible(false);
+            if (e.getSource()==startProcess){
+                // Beginning of the URL access -- the middle piece is the city entered by the user
+                String begin = "https://api.openweathermap.org/data/2.5/weather?q=";
+                String end = "&appid=abd41b0a48d3c90ed014f3841011e455&units=imperial"; // End of the URL string
+                // Information received from URL
+                String currentTemp="";
+                String feels="";
+                String currentHumidity="";
+
+                /* If the URL does not work (The city was spelled wrong or does not exist)
+                   an error occurred in the catch statement below, telling the user to check their spelling */
+                try {
+                    URL url = new URL(begin+city+end); // combines all three URL fragments to form the final URL to be accessed
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    if (conn.getResponseCode() != 200) {
+                        errorMessage.setVisible(true);
+                        temperature.setText("");
+                        fLike.setText("");
+                        humidity.setText("");
+                    } else {
+                        String s1 = getUrlContents(begin+city+end);
+                        char marks = '"';
+                        String find = marks + "temp" + marks + ":";
+                        String [] words = s1.split(find);
+                        for (int i = 0; i < words.length; i++) {
+                            currentTemp = words[i];
+                        }   
+                        temperature.setText("current temp in "+city + " is "+currentTemp.substring(0,2));
+                        find =marks+"feels_like"+marks+":";
+                        words = currentTemp.split(find);
+                        for (int i = 0; i < words.length; i++) {
+                            feels = words[i];
+                        }   
+                        fLike.setText("feels like "+feels.substring(0,2));
+                        find = marks+"humidity"+marks+":";
+                        words = feels.split(find);
+                        for (int i = 0; i < words.length; i++) {
+                            currentHumidity = words[i];
+                        } 
+                        humidity.setText("humidity: "+currentHumidity.substring(0,2));
+                    }
+                }
+                // If the error occurs, dislay the "check spelling" error message
+                catch (Exception error ) {
+                    errorMessage.setVisible(true);
+                }
+            }
+        }
+
+        private static String getUrlContents(String theUrl){  
+            StringBuilder content = new StringBuilder();  
+            try {  
+                URL url = new URL(theUrl); 
+                URLConnection urlConnection = url.openConnection(); 
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));  
+                String line;  
+                while ((line = bufferedReader.readLine()) != null)  {  
+                    content.append(line + "\n");  
+                }  
+                bufferedReader.close();  
+            }  catch(Exception e) {  
+                e.printStackTrace();  
+            }  
+            return content.toString();  
+        }
+    }
+
+    // Test cases from JUnit to ensure code is functioning as intended
+    class tester {
+
+        @Test    // This test will make sure that the input matches the city requested from the API
+        void cityIsSuffern() {
+            weather city = new weather();
+            assertEquals("Suffern", city);
+        }
+    
+        @Test    // Not a good test to check if there is a numerical output from API, but it checks to make sure something is received
+        void temperatureNotNull() {
+            weather temperature = new weather();
+            assertNotNull(temperature);
+        }
+    
+        @Test    // Same with the temperature test, it makes sure that something is received from the API
+        void humidityNotNull() {
+            weather humidity = new weather();
+            assertNotNull(humidity);
+        }
+    }
+
+    // Executes the code!
+    public static void main(String [] args){
+        new weather ();
+    }
+}

@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=weather_Data
+comment1.params=
+comment1.target=weather_Data()
+comment2.params=
+comment2.target=void\ buildPanel()
+comment3.params=
+comment3.target=java.lang.String\ loadingWeather()
+comment4.params=theUrl
+comment4.target=java.lang.String\ getUrlContents(java.lang.String)
+comment5.params=args
+comment5.target=void\ main(java.lang.String[])
+numComments=6
